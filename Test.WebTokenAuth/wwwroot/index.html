@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>JwtBearer Authentication Demo</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+<body class="bg-light">
+
+    <div class="container" id="app">
+
+        <div class="py-5 text-center">
+            <h1>Demo</h1>
+            <h2>JwtBearer Authentication</h2>
+            <p class="lead">Microsoft.AspNetCore.Authentication.JwtBearer</p>
+        </div>
+
+        <div class="mx-auto col-md-6 order-md-1">
+            <h4 class="mb-3">Credential</h4>
+            <div class="mb-3">
+                <label for="Username">Username (test)</label>
+                <input type="text" class="form-control" id="Username" v-model="username" placeholder="" required>
+            </div>
+            <div class="mb-3">
+                <label for="Password">Password (test)</label>
+                <input type="password" class="form-control" id="Password" v-model="password" placeholder="" required>
+            </div>
+
+            <hr class="mb-3">
+            <button v-bind:class="['btn', 'btn-lg', 'btn-block', loginButtonClass]" @click="login">Login</button>
+        </div>
+
+
+        <div class="mx-auto col-md-6 mt-4">
+            <h4 class="mb-3">Token</h4>
+            <pre>{{token}}</pre>
+        </div>
+
+        <div class="mx-auto col-md-6 order-md-1">
+            <h4 class="mb-3">Load Data</h4>
+            <button v-bind:class="['btn', 'btn-lg', 'btn-block', getDataButtonClass]" @click="getdata">GetData</button>
+            <br />
+            <pre>{{data}}</pre>
+        </div>
+    </div>
+
+        <script>
+
+            var app = new Vue({
+                el: '#app',
+                data: {
+                    token: 'no token',
+                    data: null,
+                    username: null,
+                    password: null,
+                    loginButtonClass: 'btn-primary',
+                    getDataButtonClass: 'btn-primary'
+                },
+                methods: {
+                    login: function () {
+
+                        var credential = {
+                            UserName: this.username,
+                            Password: this.password
+                        };
+
+                        var self = this;
+
+                        $.ajax({
+                            url: "http://localhost:50250/api/Auth",
+                            type: "POST",
+                            data: JSON.stringify(credential),
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (data) {
+                                self.token = data.token;
+                                self.loginButtonClass = 'btn-success';
+                            },
+                            error: function () {
+                                self.loginButtonClass = 'btn-danger';
+                            }
+                        });
+                    },
+                    getdata: function () {
+                        var self = this;
+
+                        $.ajax({
+                            url: "http://localhost:50250/api/Values/",
+                            type: "GET",
+                            headers: { "Authorization": 'Bearer ' + self.token },
+                            dataType: "json",
+                            success: function (data) {
+                                self.data = data;
+                                self.getDataButtonClass = 'btn-success';
+                            },
+                            error: function () {
+                                self.getDataButtonClass = 'btn-danger';
+                            }
+                        });
+                    }
+                }
+            })
+        </script>
+    </body>
+</html>
