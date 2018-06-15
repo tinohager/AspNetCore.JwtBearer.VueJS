@@ -39,7 +39,7 @@ namespace Test.WebTokenAuth.Controllers
             {
                 new Claim(JwtRegisteredClaimNames.UniqueName, authUserRequest.UserName),
             };
-
+            
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(this._config["Tokens:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -49,7 +49,11 @@ namespace Test.WebTokenAuth.Controllers
             expires: DateTime.Now.AddMinutes(30),
             signingCredentials: creds);
 
-            return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
+            return Ok(new
+            {
+                token = new JwtSecurityTokenHandler().WriteToken(token),
+                expiration = token.ValidTo
+            });
         }
     }
 }
